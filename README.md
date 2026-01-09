@@ -15,6 +15,5 @@ To include a heading above the term indicators, set the user option
 `oxford-calendar-include-intermonth-header` to a non-`nil` value.
 
 + Package name (GNU ELPA): `oxford-calendar` (!!! COMING SOON)
-+ Official manual: <https://protesilaos.com/emacs/oxford-calendar>
 + Git repository: <https://github.com/protesilaos/oxford-calendar>
 + Backronym: Overtly Xenial Feature Orders Relevant Dates ... Calendar.
