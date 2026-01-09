@@ -16,5 +16,5 @@ To include a heading above the term indicators, set the user option
 
 + Package name (GNU ELPA): `oxford-calendar` (!!! COMING SOON)
 + Official manual: <https://protesilaos.com/emacs/oxford-calendar>
-+ Git repository: <https://github.com/protesilaos/denote>
++ Git repository: <https://github.com/protesilaos/oxford-calendar>
 + Backronym: Overtly Xenial Feature Orders Relevant Dates ... Calendar.
