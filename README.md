@@ -1,7 +1,7 @@
 # Oxford calendar terms for Emacs
 
 The `oxford-calendar` package augments the `M-x calendar` buffer to
-include the week number of the current Oxford University academic
+include the week number of the current University of Oxford academic
 calendar term. Weeks are numbered 1 through 8 for each of the
 Michaelmas, Hilary, and Trinity terms.
 
