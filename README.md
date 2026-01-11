@@ -1,5 +1,9 @@
 # Oxford calendar terms for Emacs
 
+SCREENSHOT here: <https://protesilaos.com/codelog/2026-01-09-emacs-oxford-calendar-package/>.
+
+* * *
+
 The `oxford-calendar` package augments the `M-x calendar` buffer to
 include the week number of the current University of Oxford academic
 calendar term. Weeks are numbered 1 through 8 for each of the
