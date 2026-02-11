@@ -72,7 +72,7 @@ will support).
 
 + Git repository: <https://github.com/protesilaos/institution-calendar>
 + Screenshot: <https://protesilaos.com/codelog/2026-01-09-emacs-oxford-calendar-package/>
-+ Backronym: Interestingly Nothing Serving Teachers Implement Term
++ Backronyms: Interestingly Nothing Serving Teachers Implement Term
   Utilities Took Inspiration from Oxford Novices... calendar;
   Institution ... Cambridge Added Lent Entry Notwithstanding Dates
   Already Recorded.
