@@ -1,6 +1,6 @@
 # Institution calendar (e.g. University of Oxford/Cambridge) for GNU Emacs
 
-SCREENSHOT here: <https://protesilaos.com/codelog/2026-01-09-emacs-oxford-calendar-package/>.
+SCREENSHOT here: <https://protesilaos.com/codelog/2026-02-11-emacs-institution-calendar/>.
 
 * * *
 
@@ -71,7 +71,7 @@ will support).
 ## Sources
 
 + Git repository: <https://github.com/protesilaos/institution-calendar>
-+ Screenshot: <https://protesilaos.com/codelog/2026-01-09-emacs-oxford-calendar-package/>
++ Screenshot: <https://protesilaos.com/codelog/2026-02-11-emacs-institution-calendar/>
 + Backronyms: Interestingly Nothing Serving Teachers Implement Term
   Utilities Took Inspiration from Oxford Novices... calendar;
   Institution ... Cambridge Added Lent Entry Notwithstanding Dates
