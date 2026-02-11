@@ -191,7 +191,7 @@ example, the academic year spanning 2025-2026 has ACADEMIC-YEAR=2025.")
     (2039 (michaelmas (10  4 2039) (12  2 2039))
           (lent       ( 1 17 2040) ( 3 16 2040))
           (easter     ( 4 24 2040) ( 6 15 2040))))
-  "University of Cambridge equivalent of `institution-calendar-oxford-university-dates'.
+  "Cambridge equivalent of `institution-calendar-oxford-university-dates'.
 The terms are `michaelmas', `lent', and `easter'.  See the documentation
 of `institution-calendar-oxford-university-dates' for further details.")
 
