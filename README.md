@@ -51,6 +51,7 @@ will support).
 (use-package institution-calendar
   :ensure nil ; not in a package archive
   :init
+  ;; Then upgrade it with the command `package-vc-upgrade' or `package-vc-upgrade-all'.
   (unless (package-installed-p 'institution-calendar)
     (package-vc-install "https://github.com/protesilaos/institution-calendar.git"))
   :commands
