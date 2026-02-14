@@ -414,7 +414,7 @@ Users can rely on this command instead of enabling the
   "Define a variant of `institution-calendar' for the given ENTITY.
 ENTITY is among those supported by `institution-calendar-entity'."
   `(defun ,(intern (format "institution-calendar-%s" entity)) ()
-     "Like `institution-calendar' but specifically for the University of Oxford."
+     ,(format "Like `institution-calendar' but specifically for the `%s'." entity)
      (interactive)
      (call-interactively #'calendar)
      (with-current-buffer (get-buffer "*Calendar*")
