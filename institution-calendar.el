@@ -233,60 +233,6 @@ of `institution-calendar-oxford-university-dates' for further details.")
   (pcase-let ((`(,month ,day ,year) date))
     (encode-time (list 1 1 1 day month year))))
 
-(defun institution-calendar--get-week-number (date)
-  "Return week number of DATE (list MONTH DAY YEAR) starting on a Sunday."
-  (let* ((date-object (institution-calendar--encode-time date))
-         (string (format-time-string "%-U" date-object)))
-    (string-to-number string)))
-
-(defun institution-calendar--term-length (term-start-week term-end-week)
-  "Calculate the length of a term in weeks.
-TERM-START-WEEK and TERM-END-WEEK are week numbers."
-  (when (and term-start-week term-end-week)
-    (+ (- term-end-week term-start-week) 1)))
-
-(defun institution-calendar--get-term-week (term-start-week term-end-week calendar-week prefix)
-  "Return the week number of the term and whether it's an extra week, else nil.
-Determine the week number based on TERM-START-WEEK, TERM-END-WEEK, and
-CALENDAR-WEEK.  If there is a week number, return a cons cell of the
-form (WEEK-NUMBER . IS-EXTRA-WEEK-P).  WEEK-NUMBER is a string with the
-PREFIX and number of the week, while IS-EXTRA-WEEK-P is either nil or
-non-nil (per `institution-calendar-include-extra-week-numbers').
-
-If `institution-calendar-include-extra-week-numbers' is non-nil return a
-week 0 for the week before TERM-START-WEEK and a week number after the
-TERM-END-WEEK."
-  (when (and term-start-week term-end-week calendar-week)
-    (let* ((term-length (institution-calendar--term-length term-start-week term-end-week))
-           (week-after-term (when term-length (+ term-length 1)))
-           (week-number (cond
-                         ((and (>= calendar-week term-start-week)
-                               (<= calendar-week term-end-week))
-                          (+ (- calendar-week term-start-week) 1))
-                         ((and institution-calendar-include-extra-week-numbers
-                               (= calendar-week (- term-start-week 1)))
-                          0)
-                         ((and institution-calendar-include-extra-week-numbers
-                               week-after-term
-                               (= calendar-week (+ term-end-week 1)))
-                          week-after-term))))
-      (when week-number
-        (let ((is-extra-week (or (= week-number 0)
-                                 (and week-after-term
-                                      (= week-number week-after-term)))))
-          (cons (concat prefix (number-to-string week-number)) is-extra-week))))))
-
-(defun institution-calendar--get-term-weeks (term year terms)
-  "Return TERM start and end week numbers as a list, given TERMS.
-Check YEAR to determine if the date is out of bonds of the term dates
-and return nil if that is the case."
-  (pcase-let* ((`(,beg-date ,end-date) (alist-get term terms))
-               (`(,_ ,_ ,term-year) beg-date)
-               (beg-week (institution-calendar--get-week-number beg-date))
-               (end-week (institution-calendar--get-week-number end-date)))
-    (when (= term-year year)
-      (list beg-week end-week))))
-
 (defface institution-calendar-term-indicator-regular-week
   '((t :inherit calendar-weekday-header))
   "Face to style the indicator for the formal weeks of the term.
@@ -300,11 +246,6 @@ For example, if a term has 8 weeks, apply this face to week 0 and week 9
 which, is only relevant if `institution-calendar-include-extra-week-numbers'
 is set to a non-nil value.")
 
-(defun institution-calendar--get-start-year (month year)
-  "Return the start of the academic year for a given MONTH and YEAR."
-  (if (>= month 10)
-      year
-    (- year 1)))
 (defun institution-calendar--valid-term-p (term)
   "Return non-nil if TERM is valid, per `institution-calendar-valid-data-p'."
   (let ((length-3-fn (lambda (seq) (length= seq 3))))
@@ -327,6 +268,25 @@ CALENDAR-DATA is like `institution-calendar-oxford-university-dates'."
                (seq-every-p #'institution-calendar--valid-term-p (cdr element))))
         calendar-data)))
 
+(defun institution-calendar--get-start-year (month year calendar-data)
+  "Return the start year for a given MONTH and YEAR.
+The start month is derived from the provided CALENDAR-DATA (which is of
+the form defined in `institution-calendar-entity')."
+  (let* ((first-year (car calendar-data))
+         (academic-year-number (car first-year))
+         (terms (cdr first-year))
+         (start-months
+          (delq nil
+                (mapcar (lambda (term)
+                          (pcase-let* ((`(,_ ,start-date ,_) term)
+                                       (`(,_ ,_ ,start-year) start-date))
+                            (when (= start-year academic-year-number)
+                              (car start-date))))
+                        terms)))
+         (academic-year-start-month (when start-months (apply #'min start-months))))
+    (if (and academic-year-start-month (>= month academic-year-start-month))
+        year
+      (- year 1))))
 
 (defun institution-calendar--term-initial (term-name)
   "Return TERM-NAME as its initial letter plus T."
@@ -355,11 +315,48 @@ CALENDAR-DATA is like `institution-calendar-oxford-university-dates'."
     ((pred institution-calendar-valid-data-p) entity)
     (_ (error "Unsupported value for `institution-calendar-entity'"))))
 
-(defun institution-calendar--get-term-names (calendar-data)
-  "Get term names from DATA.
-CALENDAR-DATA is what is implied by `institution-calendar-entity',
-such as `institution-calendar-oxford-university-dates'."
-  (mapcar #'car (cdr (car calendar-data))))
+(defun institution-calendar--get-date-data (current-date terms)
+  "Return data for a term containing CURRENT-DATE from a list of TERMS.
+CURRENT-DATE is of `institution-calendar--encode-time' form, while TERMS
+is a list of term data, per `institution-calendar-entity', for a certain
+year.
+
+Return a list of the form (TERM-NAME WEEK-NUMBER IS-EXTRA-WEEK-P), or
+nil.  TERM-NAME is the symbol of the given term, as found in TERMS.
+WEEK-NUMBER is the number of the week for this term, optionally with
+`institution-calendar-include-extra-week-numbers'.  IS-EXTRA-WEEK-P is
+either nil or non-nil to ultimately determine whether the extra weeks
+should be rendered in the calendar buffer."
+  (catch 'found
+    (dolist (term-data terms)
+      (pcase-let* ((`(,term-name ,start-list ,end-list) term-data))
+        (when (and start-list end-list)
+          (let* ((start-date (institution-calendar--encode-time start-list))
+                 (end-date (institution-calendar--encode-time end-list))
+                 (start-day-of-week (nth 6 (decode-time start-date)))
+                 (start-of-first-week (time-subtract start-date (days-to-time start-day-of-week)))
+                 (end-day-of-week (nth 6 (decode-time end-date)))
+                 (end-of-last-week (time-subtract end-date (days-to-time end-day-of-week)))
+                 (seconds-in-a-week (float (* 60 60 24 7))))
+            (cond
+             ((and (not (time-less-p current-date start-of-first-week))
+                   (time-less-p current-date start-date))
+              (throw 'found (list term-name 1 nil)))
+             ((and (not (time-less-p current-date start-date))
+                   (time-less-p current-date (time-add end-date (days-to-time 1))))
+              (let* ((seconds-since-start (float-time (time-subtract current-date start-of-first-week)))
+                     (week-number (1+ (floor (/ seconds-since-start seconds-in-a-week)))))
+                (throw 'found (list term-name week-number nil))))
+             ((and institution-calendar-include-extra-week-numbers
+                   (not (time-less-p current-date (time-subtract start-of-first-week (days-to-time 7))))
+                   (time-less-p current-date start-of-first-week))
+              (throw 'found (list term-name 0 t)))
+             ((and institution-calendar-include-extra-week-numbers
+                   (not (time-less-p current-date (time-add end-of-last-week (days-to-time 7))))
+                   (time-less-p current-date (time-add end-of-last-week (days-to-time 14))))
+              (let* ((seconds-between (float-time (time-subtract end-of-last-week start-of-first-week)))
+                     (num-weeks (1+ (floor (/ seconds-between seconds-in-a-week)))))
+                (throw 'found (list term-name (1+ num-weeks) t)))))))))))
 
 (defun institution-calendar-week (month day year &optional entity)
   "Use MONTH DAY YEAR to determine current week.
@@ -370,38 +367,33 @@ with the data that corresponds to the value of the user option
 Return string of the term's initial letter and week number, if relevant
 text properties."
   (let* ((calendar-data (institution-calendar--get-data (or entity institution-calendar-entity)))
-         (academic-year (institution-calendar--get-start-year month year))
+         (academic-year (institution-calendar--get-start-year month year calendar-data))
          (terms (alist-get academic-year calendar-data))
-         (term-names (institution-calendar--get-term-names calendar-data))
-         (calendar-week (institution-calendar--get-week-number (list month day year)))
-         (found-week-info nil)
-         (found-term-name nil))
-    (catch :exit
-      (dolist (term-name term-names)
-        (when-let* ((term-weeks-pair (institution-calendar--get-term-weeks term-name year terms))
-                    (beg-week (car term-weeks-pair))
-                    (end-week (cadr term-weeks-pair))
-                    (term-initial (institution-calendar--term-initial term-name))
-                    (week-info (institution-calendar--get-term-week beg-week end-week calendar-week term-initial)))
-          (setq found-week-info week-info)
-          (setq found-term-name term-name)
-          (throw :exit t))))
-    (let* ((week-string (car found-week-info))
-           (is-extra-week (cdr found-week-info)))
-      (format " %3s " (propertize (or week-string "")
-                                  'help-echo (format "`%s' term" found-term-name)
-                                  'face (if is-extra-week
-                                             'institution-calendar-term-indicator-extra-week
-                                           'institution-calendar-term-indicator-regular-week))))))
+         (current-date (institution-calendar--encode-time (list month day year)))
+         (term-info (when terms (institution-calendar--get-date-data current-date terms))))
+    (if term-info
+        (pcase-let* ((`(,term-name ,week-number ,is-extra-week) term-info)
+                     (week-string (concat (institution-calendar--term-initial term-name) (number-to-string week-number))))
+          (format " %3s " (propertize week-string
+                                      'help-echo (format "`%s' term" term-name)
+                                      'face (if is-extra-week
+                                                'institution-calendar-term-indicator-extra-week
+                                              'institution-calendar-term-indicator-regular-week))))
+      "   ")))
 
 (defun institution-calendar-intermonth-header (&optional entity)
   "Return string for `calendar-intermonth-header'.
-With optional ENTITY, use it instead of `institution-calendar-entity'."
-  (if institution-calendar-include-intermonth-header
-      (if-let* ((text (alist-get (or entity institution-calendar-entity) institution-calendar-intermonth-headers)))
-          (format "%s" (propertize text 'face 'institution-calendar-term-indicator-extra-week))
-        "  ")
-    "  "))
+With optional ENTITY, use it instead of `institution-calendar-entity'.
+
+If `institution-calendar-include-intermonth-header' is nil, return a
+blank string of appropriate length.  Same if ENTITY does not have a
+corresponding header in `institution-calendar-intermonth-headers'."
+  (let ((empty "  "))
+    (if institution-calendar-include-intermonth-header
+        (if-let* ((text (alist-get (or entity institution-calendar-entity) institution-calendar-intermonth-headers)))
+            (format "%s" (propertize text 'face 'institution-calendar-term-indicator-extra-week))
+          empty)
+      empty)))
 
 ;;;###autoload
 (defun institution-calendar ()
