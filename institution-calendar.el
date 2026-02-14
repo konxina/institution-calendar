@@ -359,8 +359,9 @@ text properties."
   "Return string for `calendar-intermonth-header'.
 With optional ENTITY, use it instead of `institution-calendar-entity'."
   (if institution-calendar-include-intermonth-header
-      (let ((text (alist-get (or entity institution-calendar-entity) institution-calendar-intermonth-headers)))
-        (format "%s" (propertize text 'face 'institution-calendar-term-indicator-extra-week)))
+      (if-let* ((text (alist-get (or entity institution-calendar-entity) institution-calendar-intermonth-headers)))
+          (format "%s" (propertize text 'face 'institution-calendar-term-indicator-extra-week))
+        "  ")
     "  "))
 
 ;;;###autoload
