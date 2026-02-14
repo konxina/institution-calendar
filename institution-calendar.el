@@ -51,11 +51,32 @@ terms with numbered weeks."
   (when institution-calendar-mode
     (institution-calendar-mode 1)))
 
+(defvar institution-calendar-user-entities nil
+  "User defined institutions and their calendar data.
+This is an alist where each element is a cons cell of the following form:
+
+    (ENTITY . CALENDAR-DATA)
+
+ENTITY is a symbol, while CALENDAR-DATA has the same structure as
+`institution-calendar-oxford-university-dates' (i.e. it conforms with
+the `institution-calendar-valid-data-p').
+
+Institutions defined here can be passed to `institution-calendar-entity'
+via their ENTITY.  They can also have their own command for producing a
+calendar that does not interfere with the regular `calendar' command by
+evaluating the following:
+
+    (institution-calendar-define-convenience-command ENTITY)
+
+In the above sample, ENTITY should not be quoted as the macro takes care
+of that.")
+
 (defcustom institution-calendar-entity 'oxford-university
   "Set the institution whose term dates to display in the `calendar'.
 The value is the symbol `oxford-university' or `cambridge-university'.
 
-[Other institutions can be added, based on demand.]
+[Other institutions can be added, based on demand, though users can
+define their own institutions via `institution-calendar-user-entities'.]
 
 The value may also be an alist which contains the data of the term names
 and corresponding start/end dates.  In this case, the data is of the
@@ -66,9 +87,13 @@ If you set this user option with `setq', you need to enable the
 internally, if the mode is already enabled.
 
 The command `institution-calendar' works fine with `setq'."
-  :type '(choice
+  :type `(choice
           (const :tag "University of Oxford" oxford-university)
           (const :tag "University of Cambridge" cambridge-university)
+          ,@(mapcar
+             (lambda (element)
+               (list 'const (car element)))
+             institution-calendar-user-entities)
           (sexp :tag "Data that conforms with `institution-calendar-valid-data-p'"))
   :initialize #'custom-initialize-default
   :set #'institution-calendar--set
@@ -308,11 +333,23 @@ CALENDAR-DATA is like `institution-calendar-oxford-university-dates'."
     (substring 0 1)
     (upcase)))
 
+(defun institution-calendar--user-entity-p (entity)
+  "Return non-nil if ENTITY is among `institution-calendar-user-entities'."
+  (memq entity (mapcar #'car institution-calendar-user-entities)))
+
+(defun institution-calendar--get-user-entity-data (entity)
+  "Return calendar data for user defined ENTITY."
+  (when-let* ((data (alist-get entity institution-calendar-user-entities)))
+    (if (symbolp data)
+        (symbol-value data)
+      data)))
+
 (defun institution-calendar--get-data (entity)
   "Return data that corresponds to ENTITY (per `institution-calendar-entity')."
   (pcase entity
     ('cambridge-university institution-calendar-cambridge-university-dates)
     ('oxford-university institution-calendar-oxford-university-dates)
+    ((pred institution-calendar--user-entity-p) (institution-calendar--get-user-entity-data entity))
     ((pred institution-calendar-valid-data-p) entity)
     (_ (error "Unsupported value for `institution-calendar-entity'"))))
 
