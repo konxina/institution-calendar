@@ -272,6 +272,28 @@ is set to a non-nil value.")
   (if (>= month 10)
       year
     (- year 1)))
+(defun institution-calendar--valid-term-p (term)
+  "Return non-nil if TERM is valid, per `institution-calendar-valid-data-p'."
+  (let ((length-3-fn (lambda (seq) (length= seq 3))))
+    (and (listp term)
+         (funcall length-3-fn term)
+         (symbolp (car term))
+         (seq-every-p
+          (lambda (element)
+            (and (funcall length-3-fn element)
+                 (seq-every-p #'integerp element)))
+          (cdr term)))))
+
+(defun institution-calendar-valid-data-p (calendar-data)
+  "Return non-nil if CALENDAR-DATA has the expected structure.
+CALENDAR-DATA is like `institution-calendar-oxford-university-dates'."
+  (and (listp calendar-data)
+       (seq-every-p
+        (lambda (element)
+          (and (integerp (car element))
+               (seq-every-p #'institution-calendar--valid-term-p (cdr element))))
+        calendar-data)))
+
 
 (defun institution-calendar--term-initial (term-name)
   "Return TERM-NAME as its initial letter plus T."
