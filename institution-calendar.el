@@ -379,8 +379,6 @@ Users can rely on this command instead of enabling the
     (setq-local calendar-intermonth-text '(institution-calendar-week month day year))
     (call-interactively #'calendar-redraw)))
 
-;; TODO 2026-02-11: We can have a function that returns all supported
-;; entities. Then here we add the relevant error check.
 (defmacro institution-calendar-define-convenience-command (entity)
   "Define a variant of `institution-calendar' for the given ENTITY.
 ENTITY is among those supported by `institution-calendar-entity'."
