@@ -51,6 +51,29 @@ terms with numbered weeks."
   (when institution-calendar-mode
     (institution-calendar-mode 1)))
 
+(defcustom institution-calendar-entity 'oxford-university
+  "Set the institution whose term dates to display in the `calendar'.
+The value is the symbol `oxford-university' or `cambridge-university'.
+
+[Other institutions can be added, based on demand.]
+
+The value may also be an alist which contains the data of the term names
+and corresponding start/end dates.  In this case, the data is of the
+same form as `institution-calendar-oxford-university-dates'.
+
+If you set this user option with `setq', you need to enable the
+`institution-calendar-mode' again.  The Custom interface does that
+internally, if the mode is already enabled.
+
+The command `institution-calendar' works fine with `setq'."
+  :type '(choice
+          (const :tag "University of Oxford" oxford-university)
+          (const :tag "University of Cambridge" cambridge-university)
+          (sexp :tag "Data that conforms with `institution-calendar-valid-data-p'"))
+  :initialize #'custom-initialize-default
+  :set #'institution-calendar--set
+  :group 'institution-calendar)
+
 (defcustom institution-calendar-include-extra-week-numbers t
   "Include an extra week before and after the formal term weeks.
 For example, if the term has 8 weeks, this adds a week 0 and a week 9 to
@@ -89,29 +112,6 @@ Each element is a cons cell of the form (INSTITUTION . TEXT) where
 INSTITUTION is a symbol among those accepted by the user option
 `institution-calendar-entity' and TEXT is a two-letter string that
 describes the INSTITUTION.")
-
-(defcustom institution-calendar-entity 'oxford-university
-  "Set the institution whose term dates to display in the `calendar'.
-The value is the symbol `oxford-university' or `cambridge-university'.
-
-[Other institutions can be added, based on demand.]
-
-The value may also be an alist which contains the data of the term names
-and corresponding start/end dates.  In this case, the data is of the
-same form as `institution-calendar-oxford-university-dates'.
-
-If you set this user option with `setq', you need to enable the
-`institution-calendar-mode' again.  The Custom interface does that
-internally, if the mode is already enabled.
-
-The command `institution-calendar' works fine with `setq'."
-  :type '(choice
-          (const :tag "University of Oxford" oxford-university)
-          (const :tag "University of Cambridge" cambridge-university)
-          (sexp :tag "Data that conforms with `institution-calendar-valid-data-p'"))
-  :initialize #'custom-initialize-default
-  :set #'institution-calendar--set
-  :group 'institution-calendar)
 
 ;; Source: <https://www.ox.ac.uk/about/facts-and-figures/dates-of-term>.
 (defvar institution-calendar-oxford-university-dates
