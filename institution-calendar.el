@@ -93,16 +93,22 @@ describes the INSTITUTION.")
 (defcustom institution-calendar-entity 'oxford-university
   "Set the institution whose term dates to display in the `calendar'.
 The value is the symbol `oxford-university' or `cambridge-university'.
-Other institutions can be added, based on demand.
+
+[Other institutions can be added, based on demand.]
+
+The value may also be an alist which contains the data of the term names
+and corresponding start/end dates.  In this case, the data is of the
+same form as `institution-calendar-oxford-university-dates'.
 
 If you set this user option with `setq', you need to enable the
 `institution-calendar-mode' again.  The Custom interface does that
 internally, if the mode is already enabled.
 
 The command `institution-calendar' works fine with `setq'."
-  :type '(radio
+  :type '(choice
           (const :tag "University of Oxford" oxford-university)
-          (const :tag "University of Cambridge" cambridge-university))
+          (const :tag "University of Cambridge" cambridge-university)
+          (sexp :tag "Data that conforms with `institution-calendar-valid-data-p'"))
   :initialize #'custom-initialize-default
   :set #'institution-calendar--set
   :group 'institution-calendar)
@@ -307,6 +313,7 @@ CALENDAR-DATA is like `institution-calendar-oxford-university-dates'."
   (pcase entity
     ('cambridge-university institution-calendar-cambridge-university-dates)
     ('oxford-university institution-calendar-oxford-university-dates)
+    ((pred institution-calendar-valid-data-p) entity)
     (_ (error "Unsupported value for `institution-calendar-entity'"))))
 
 (defun institution-calendar--get-term-names (calendar-data)
