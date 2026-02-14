@@ -118,7 +118,9 @@ The command `institution-calendar' works fine with `setq'."
   "When non-nil include a header above the term indicators.
 The text of the header depends on the value of the user option
 `institution-calendar-entity'.  All such headers are defined in
-`institution-calendar-intermonth-headers'.
+`institution-calendar-intermonth-headers' (users who register their own
+institution in `institution-calendar-user-entities' can also update the
+`institution-calendar-intermonth-headers' accordingly).
 
 If you set this user option with `setq', you need to enable the
 `institution-calendar-mode' again.  The Custom interface does that
