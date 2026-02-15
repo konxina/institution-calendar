@@ -396,6 +396,16 @@ corresponding header in `institution-calendar-intermonth-headers'."
           empty)
       empty)))
 
+(defun institution-calendar-setup (&optional entity)
+  "Set up the Calendar buffer.
+With optional ENTITY, do it for that one only."
+  (with-current-buffer (get-buffer "*Calendar*")
+    (setq-local calendar-left-margin 10
+                calendar-intermonth-spacing 6
+                calendar-intermonth-header (institution-calendar-intermonth-header entity)
+                calendar-intermonth-text `(institution-calendar-week month day year ',entity))
+    (call-interactively #'calendar-redraw)))
+
 ;;;###autoload
 (defun institution-calendar ()
   "Like `calendar' but with the institution's term week indicators.
@@ -404,12 +414,7 @@ Users can rely on this command instead of enabling the
 `calendar' command."
   (interactive)
   (call-interactively #'calendar)
-  (with-current-buffer (get-buffer "*Calendar*")
-    (setq-local calendar-left-margin 10)
-    (setq-local calendar-intermonth-spacing 6)
-    (setq-local calendar-intermonth-header (institution-calendar-intermonth-header))
-    (setq-local calendar-intermonth-text '(institution-calendar-week month day year))
-    (call-interactively #'calendar-redraw)))
+  (institution-calendar-setup))
 
 (defmacro institution-calendar-define-convenience-command (entity)
   "Define a variant of `institution-calendar' for the given ENTITY.
@@ -418,12 +423,7 @@ ENTITY is among those supported by `institution-calendar-entity'."
      ,(format "Like `institution-calendar' but specifically for the `%s'." entity)
      (interactive)
      (call-interactively #'calendar)
-     (with-current-buffer (get-buffer "*Calendar*")
-       (setq-local calendar-left-margin 10)
-       (setq-local calendar-intermonth-spacing 6)
-       (setq-local calendar-intermonth-header (institution-calendar-intermonth-header ',entity))
-       (setq-local calendar-intermonth-text '(institution-calendar-week month day year ',entity))
-       (call-interactively #'calendar-redraw))))
+     (institution-calendar-setup ',entity)))
 
 ;;;###autoload (autoload 'institution-calendar-cambridge-university "institution-calendar")
 (institution-calendar-define-convenience-command cambridge-university)
