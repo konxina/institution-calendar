@@ -297,7 +297,8 @@ the form defined in `institution-calendar-entity')."
 
 (defun institution-calendar--user-entity-p (entity)
   "Return non-nil if ENTITY is among `institution-calendar-user-entities'."
-  (memq entity (mapcar #'car institution-calendar-user-entities)))
+  (when-let* ((entities (mapcar #'car institution-calendar-user-entities)))
+    (memq entity entities)))
 
 (defun institution-calendar--get-user-entity-data (entity)
   "Return calendar data for user defined ENTITY."
