@@ -440,7 +440,6 @@ weeks of the institution.
 Users who need to keep `calendar' intact while still having access to
 the available institution data, can use the command `institution-calendar'."
   :global t
-  :lighter " IC"
   (if institution-calendar-mode
       (progn
         (setopt calendar-left-margin 10
