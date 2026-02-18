@@ -441,17 +441,8 @@ Users who need to keep `calendar' intact while still having access to
 the available institution data, can use the command `institution-calendar'."
   :global t
   (if institution-calendar-mode
-      (progn
-        (setopt calendar-left-margin 10
-                calendar-intermonth-spacing 6
-                calendar-intermonth-header (institution-calendar-intermonth-header)
-                calendar-intermonth-text '(institution-calendar-week month day year))
-        (message "Enabled Institution Calendar mode"))
-    (setopt calendar-left-margin 5
-            calendar-intermonth-spacing 4
-            calendar-intermonth-header nil
-            calendar-intermonth-text nil)
-    (message "Disabled Institution Calendar mode")))
+      (add-hook 'calendar-initial-window-hook #'institution-calendar-setup)
+    (remove-hook 'calendar-initial-window-hook #'institution-calendar-setup)))
 
 (provide 'institution-calendar)
 ;;; institution-calendar.el ends here
