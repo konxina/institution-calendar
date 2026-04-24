@@ -1,5 +1,5 @@
 #+title: Institution Calendar
-#+author: Protesilaos Stavrou
+#+author: Protesilaos
 #+email: info@protesilaos.com
 #+language: en
 #+options: ':t toc:nil author:t email:t num:t
@@ -13,13 +13,13 @@
 #+texinfo_dir_title: Institution Calendar: (institution-calendar)
 #+texinfo_dir_desc: Show term and week numbers in the M-x calendar for a given institution
 #+texinfo_header: @set MAINTAINERSITE @uref{https://protesilaos.com,maintainer webpage}
-#+texinfo_header: @set MAINTAINER Protesilaos Stavrou
+#+texinfo_header: @set MAINTAINER Protesilaos
 #+texinfo_header: @set MAINTAINEREMAIL @email{info@protesilaos.com}
 #+texinfo_header: @set MAINTAINERCONTACT @uref{mailto:info@protesilaos.com,contact the maintainer}
 
 #+texinfo: @insertcopying
 
-This manual, written by Protesilaos Stavrou, describes the
+This manual, written by Protesilaos, describes the
 customization options for the Emacs package called
 ~institution-calendar~ (or =institution-calendar.el=), and provides
 every other piece of information pertinent to it.
@@ -47,7 +47,7 @@ Current development target is {{{development-version}}}.
 :COPYING: t
 :END:
 
-Copyright (C) 2026  Protesilaos Stavrou
+Copyright (C) 2026  Protesilaos
 
 #+begin_quote
 Permission is granted to copy, distribute and/or modify this document

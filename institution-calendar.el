@@ -1,9 +1,9 @@
 ;;; institution-calendar.el --- Show term week numbers in the `calendar' buffer for different institutions -*- lexical-binding: t -*-
 
-;; Copyright (C) 2026  Protesilaos Stavrou
+;; Copyright (C) 2026  Protesilaos
 
-;; Author: Protesilaos Stavrou <info@protesilaos.com>
-;; Maintainer: Protesilaos Stavrou <info@protesilaos.com>
+;; Author: Protesilaos <info@protesilaos.com>
+;; Maintainer: Protesilaos <info@protesilaos.com>
 ;; URL: https://github.com/protesilaos/institution-calendar
 ;; Version: 0.0.0
 ;; Package-Requires: ((emacs "28.1"))
@@ -99,6 +99,8 @@ The command `institution-calendar' works fine with `setq'."
   :set #'institution-calendar--set
   :group 'institution-calendar)
 
+;; TODO 2026-02-24: Accept cons cell which means (cons BEFORE-N
+;; AFTER-N) for that many weeks before and after.
 (defcustom institution-calendar-include-extra-week-numbers t
   "Include an extra week before and after the formal term weeks.
 For example, if the term has 8 weeks, this adds a week 0 and a week 9 to
