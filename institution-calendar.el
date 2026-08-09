@@ -402,11 +402,17 @@ corresponding header in `institution-calendar-intermonth-headers'."
   "Set up the Calendar buffer.
 With optional ENTITY, do it for that one only."
   (with-current-buffer (get-buffer "*Calendar*")
-    (setq-local calendar-left-margin 10
-                calendar-intermonth-spacing 6
-                calendar-intermonth-header (institution-calendar-intermonth-header entity)
-                calendar-intermonth-text `(institution-calendar-week month day year ',entity))
-    (call-interactively #'calendar-redraw)))
+    (let ((date (or (ignore-errors (calendar-cursor-to-date))
+                    (calendar-current-date))))
+      (setq-local
+       calendar-left-margin 10
+       calendar-intermonth-spacing 6
+       calendar-intermonth-header
+       (institution-calendar-intermonth-header entity)
+       calendar-intermonth-text
+       `(institution-calendar-week month day year ',entity))
+      (calendar-redraw)
+      (calendar-goto-date date))))
 
 ;;;###autoload
 (defun institution-calendar ()
