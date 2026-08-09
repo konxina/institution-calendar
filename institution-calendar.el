@@ -398,6 +398,21 @@ corresponding header in `institution-calendar-intermonth-headers'."
           empty)
       empty)))
 
+(defconst institution-calendar-minimum-month-height 7
+  "Minimum number of lines occupied by a calendar month.
+
+This includes the month header, weekday header, and calendar weeks.")
+
+(defun institution-calendar--pad-month-height (orig month year indent)
+  "Pad short months when institution indicators are displayed."
+  (let ((start-line (line-number-at-pos)))
+    (funcall orig month year indent)
+    (let ((height (- (line-number-at-pos)
+                     start-line)))
+      (when (< height institution-calendar-minimum-month-height)
+        (dotimes (_ (- institution-calendar-minimum-month-height height))
+          (calendar-ensure-newline))))))
+
 (defun institution-calendar-setup (&optional entity)
   "Set up the Calendar buffer.
 With optional ENTITY, do it for that one only."
@@ -451,6 +466,9 @@ the available institution data, can use the command `institution-calendar'."
   (if institution-calendar-mode
       (add-hook 'calendar-initial-window-hook #'institution-calendar-setup)
     (remove-hook 'calendar-initial-window-hook #'institution-calendar-setup)))
+
+(advice-add 'calendar-generate-month :around
+            #'institution-calendar--pad-month-height)
 
 (provide 'institution-calendar)
 ;;; institution-calendar.el ends here
